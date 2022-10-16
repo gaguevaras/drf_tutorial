@@ -8,6 +8,12 @@ from rest_framework.response import Response
 from snippets.models import Snippet
 from snippets.serializers import SnippetSerializer
 
+"""
+##########################################################################################
+#                           FUNCTION-BASED VIEWS
+##########################################################################################
+"""
+
 
 @csrf_exempt
 def snippet_list(request):
@@ -26,24 +32,6 @@ def snippet_list(request):
             serializer.save()
             return JsonResponse(serializer.data, status=201)
         return JsonResponse(serializer.errors, status=400)
-
-
-@api_view(["GET", "POST"])
-def wrapped_snippet_list(request):
-    """
-    List all code snippets, or create a new snippet.
-    """
-    if request.method == "GET":
-        snippets = Snippet.objects.all()
-        serializer = SnippetSerializer(snippets, many=True)
-        return Response(serializer.data)
-
-    elif request.method == "POST":
-        serializer = SnippetSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @csrf_exempt
@@ -73,8 +61,33 @@ def snippet_detail(request, pk):
         return HttpResponse(status=204)
 
 
+"""
+##########################################################################################
+#                           DECORATED FUNCTION-BASED VIEWS
+##########################################################################################
+"""
+
+
+@api_view(["GET", "POST"])
+def wrapped_snippet_list(request, format=None):
+    """
+    List all code snippets, or create a new snippet.
+    """
+    if request.method == "GET":
+        snippets = Snippet.objects.all()
+        serializer = SnippetSerializer(snippets, many=True)
+        return Response(serializer.data)
+
+    elif request.method == "POST":
+        serializer = SnippetSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 @api_view(["GET", "PUT", "DELETE"])
-def wrapped_snippet_detail(request, pk):
+def wrapped_snippet_detail(request, pk, format=None):
     """
     Retrieve, update or delete a code snippet.
     """
